@@ -1,18 +1,3 @@
-# Copyright 2023-2024 PKU-Alignment Team. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
 from __future__ import annotations
 
 from typing import Callable
@@ -20,10 +5,16 @@ from typing_extensions import TypedDict  # Python 3.10+
 
 import torch
 
-from safe_rlhf.configs import IGNORE_INDEX, PROMPT_ASSISTANT, PROMPT_BEGIN, PROMPT_USER
+from safe_rlhf.configs import (
+    IGNORE_INDEX,
+    PROMPT_ASSISTANT,
+    PROMPT_BEGIN,
+    PROMPT_INPUT,
+    PROMPT_INPUT_FOR_MATH,
+    PROMPT_USER,
+)
 from safe_rlhf.datasets.base import CollatorBase, RawSample, TokenizedDataset
-from safe_rlhf.datasets.utils import format_prompt, right_padding
-
+from safe_rlhf.datasets.utils import right_padding
 
 __all__ = [
     'SupervisedDataset',
@@ -46,36 +37,33 @@ class SupervisedBatch(TypedDict, total=True):
 
 class SupervisedDataset(TokenizedDataset):
     def preprocess(self, raw_sample: RawSample) -> SupervisedSample:
-        if raw_sample.get('input') is None and raw_sample.get('dialogue') is None:
-            raise ValueError('Either `input` or `dialogue` must be provided.')
-        if raw_sample.get('input') is not None and raw_sample.get('dialogue') is not None:
-            raise ValueError('At most one of `input` and `dialogue` can be provided.')
+        if raw_sample.get('input') is None and raw_sample.get('dialog') is None:
+            raise ValueError('Either input or dialog must be provided.')
+        if raw_sample.get('input') is not None and raw_sample.get('dialog') is not None:
+            raise ValueError('At most one of input and dialog can be provided.')
 
         if raw_sample.get('input') is not None:
-            input = raw_sample['input']  # pylint: disable=redefined-builtin
-            if not isinstance(input, str):
-                raise ValueError(f'Unsupported type of `input`: {type(input)}. Expected: str.')
-            prompt = format_prompt(input=input, eos_token=self.tokenizer.eos_token)
+
+            prompt = PROMPT_INPUT_FOR_MATH.format(input=raw_sample['input'])
             answer = raw_sample['answer']
-            text = prompt + answer + self.tokenizer.eos_token
+            text = prompt + answer + f" {self.tokenizer.eos_token}"
 
             input_ids = self.tokenize(text)
             labels = input_ids.clone()
-            # Mask non-assistant input
-            labels[: len(self.tokenize(prompt))] = IGNORE_INDEX
+
             return {'input_ids': input_ids, 'labels': labels}
 
-        dialogue = raw_sample['dialogue']  # is not None
+        dialog = raw_sample['dialog']  # is not None
         text = PROMPT_BEGIN
         offsets = [0]
         input_ids = torch.empty(0, dtype=torch.long)
-        for i, line in enumerate(dialogue):
+        for i, line in enumerate(dialog):
             if i % 2 == 0:
                 # User input
                 text += PROMPT_USER.format(input=line) + PROMPT_ASSISTANT
             else:
                 # Assistant input
-                text += line + self.tokenizer.eos_token
+                text += line + f" {self.tokenizer.eos_token}"
             input_ids = self.tokenize(text)
             offsets.append(len(input_ids))
 

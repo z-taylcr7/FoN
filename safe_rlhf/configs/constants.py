@@ -29,6 +29,7 @@ __all__ = [
     'PROMPT_INPUT',
     'PROMPT_DICT',
     'ADAM_BETAS',
+    'PROMPT_INPUT_FOR_MATH',
 ]
 
 
@@ -49,5 +50,7 @@ PROMPT_DICT: dict[str, str] = {
     'prompt_assistant': PROMPT_ASSISTANT,
     'prompt_input': PROMPT_INPUT,
 }
+
+PROMPT_INPUT_FOR_MATH: str = "Question:\n{input}\nAnswer:\nLet's think step by step.\n"
 
 ADAM_BETAS: tuple[float, float] = (0.9, 0.95)

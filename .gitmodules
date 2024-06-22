@@ -1,0 +1,3 @@
+[submodule "abel-eval"]
+	path = abel-eval
+	url = https://github.com/GAIR-NLP/abel

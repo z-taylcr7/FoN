@@ -30,6 +30,16 @@ from safe_rlhf.datasets.raw.safe_rlhf import (
     SafeRLHFTestDataset,
     SafeRLHFTrainDataset,
 )
+from safe_rlhf.datasets.raw.gsm8k import (
+    GSM8KDataset,
+    GSM8KRADataset,
+    GSM8KAnsDataset,
+    GSM8KDotDataset,
+    GSM8KHybridDataset,
+    GSM8KRandomDotDataset,
+    GSM8KFullAnsDataset,
+    GSM8KRegenDataset,
+)
 
 
 __all__ = [
@@ -46,4 +56,12 @@ __all__ = [
     'SafeRLHF30KTrainDataset',
     'SafeRLHF30KTestDataset',
     'SafeRLHF10KTrainDataset',
+    'GSM8KDataset',
+    'GSM8KRADataset',
+    'GSM8KAnsDataset',
+    'GSM8KDotDataset',
+    'GSM8KRandomDotDataset',
+    'GSM8KFullAnsDataset',
+    'GSM8KHybridDataset',
+    'GSM8KRegenDataset',
 ]
