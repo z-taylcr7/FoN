@@ -1,5 +1,9 @@
 # Focusing on Numbers (FoN)
 
+[Paper Report](GAIR_CS2916_Efficient_Reasoning.pdf)
+
+
+## Manuscript of running this project
 After setting up safe-rlhf structure in [safe-rlhf](safe-rlhf-README.md):
 
 ### SFT
